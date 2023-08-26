@@ -1,0 +1,121 @@
+#+title: Wombag - A Wallabag client for Emacs
+#+options: h:5 num:nil toc:nil
+
+#+html: <img src="https://github.com/karthink/wombag/assets/8607532/2ccc4c9a-bb22-4ef6-879e-33994e571a7b" width="275px" align="right">
+
+# #+html: <img src="./wombag-2.png" width="275px" align="right">
+
+Wombag is a Wallabag client for Emacs.
+
+[[https://wallabag.org/][Wallabag]] is an (optionally self-hosted) Read-It-Later and archiving service for web pages, like Pocket or Instapaper.
+
+* Installation
+
+*Please Note*: Wombag requires at least Emacs 28.1 and a recent-ish server-side installation of Wallabag (v2.6.0 or higher).  You can check your Wallabag version from the web interface.
+
+Install using your package manager of choice, or clone this repo and run =package-install-file= on the cloned directory.
+
+* Setup and Usage
+
+#+begin_src emacs-lisp
+(use-package wombag
+  :config
+  (setq wombag-host "https://app.wallabag.it" ;where you access Wallabag
+        wombag-username "my-wallabag-username"
+        wombag-password "my-wallabag-password"
+        wombag-client-id "abcdefgh1234"
+        wombag-client-secret "abcdefgh1234"))
+#+end_src
+Consider obfuscating your password and client secret here using =auth-source= or some other mechanism.  There are other customization options, which see.
+
+To use it, run =wombag=.
+
+Run =wombag-sync= to sync the local database.  It may take a while the first time.
+
+** In the Wombag buffer
+
+If you have used [[https://github.com/skeeto/elfeed][Elfeed]] before you should feel at home.
+
+# #+attr_html: :width 800px
+# [[file:images/wombag-view.png]]
+
+#+html: <img src="https://github.com/karthink/wombag/assets/8607532/73097fca-bcc8-406f-8419-02a494e05430" align="center">
+
+- Press =s= to search for articles, =?= for help when searching.
+- Sync with the server with =wombag-sync= (=G=).
+- You can archive (=A=), star (=F=), tag (=+=) or delete (=D=) entries.
+- Removing tags is not supported yet.
+
+** Anywhere in Emacs
+
+To add a URL to Wallabag, you can run =M-x wombag-add-entry=.
+
+* Quality of life features
+
+Wombag provides a few QoL features.
+
+*** Full-featured text search
+
+You can filter the search listing incrementally using any combination of criteria.
+
+In this demo I filter the listing to articles that mention /Julia/ in the title, added between /2021/ and /2023/, are not archived, and contain the text /automatic differentiation/:
+
+# #+begin_export html
+# <p align="center"><video preload="metadata" style="center" width="768" controls>
+# <source src="./wombag-search.mp4">[VIDEO]</a></video></p>
+# #+end_export
+
+#+html: <p align="center">
+https://github.com/karthink/gptel/assets/8607532/3fa5b41f-4b18-416c-b4d4-7c314603d037
+#+html: </p>
+
+# https://github-production-user-asset-6210df.s3.amazonaws.com/8607532/280438599-3fa5b41f-4b18-416c-b4d4-7c314603d037.mp4
+
+You can search by text, tags, title, author, URL, date published, date added, starred/archived status and more.
+
+*** Saves your place
+
+Wombag saves your place in articles.  You can also show only partly-read articles when searching (press =?=), or call =M-x wombag-resume= from anywhere.
+
+*** =imenu= support
+
+Jump between article sections with =imenu=:
+
+# #+attr_html: :width 800px
+# [[file:images/wombag-imenu.png]]
+
+#+html: <img src="https://github.com/karthink/wombag/assets/8607532/876d0821-ff9d-4967-8e71-19ba5cd6df90" align="center">
+
+The above image is with =consult-imenu=.  Any =imenu=-based command will work (including just =imenu=).
+
+*** Bookmark support
+
+You can bookmark search results or individual articles.
+
+*** TODO Org-link support
+
+(Not yet implemented)
+
+* How it works
+
+Wombag uses a local sqlite database to store your Wallabag entries and Emacs as a front-end.  Remote to local syncing is incremental and based on the last sync time.  Local changes are propagated to the remote instantaneously and requires an Internet connection.
+
+* Comparison with [[https://github.com/chenyanming/wallabag.el][wallabag.el]]
+
+I needed something that could work smoothly with my decades-old reading list of 15K+ articles.  I could not get  =wallabag.el=, a pre-existing Wallabag client for Emacs, to sync correctly or to work without freezing Emacs.  This is a smaller, stripped down rewrite of the package  -- no code is shared except for a couple of face definitions.
+
+- =wallabag.el= has many features Wombag doesn't: annotation support, ivy integration, image caching,  bulk action support via marking entries and more customization options.
+- Wombag has a 12-25x lower memory footprint, more consistent syncing and graceful error handling, better search and many quality of life features.
+
+For more information on the differences see [[https://github.com/chenyanming/wallabag.el/issues/21][this thread]].
+
+* Known issues
+
+- Deleting articles from the web interface or a different client will not cause them to be deleted from the local database when syncing.  This is a known limitation of the Wallabag API.  This can be done by doing a full (as opposed to incremental) sync, which Wombag does not (officially) support.  Note that all local changes (including deletions) are always reflected server-side.
+
+- Removing tags is not implemented due to Wallabag [[https://github.com/wallabag/wallabag/issues/6928][API issues]].
+
+* Acknowledgments
+
+- [[https://github.com/chenyanming][Damon Chan]] for writing wallabag.el, the inspiration for this package.
+- [[https://github.com/skeeto][Chris Wellons]] for writing Elfeed, the other inspiration for this package.  He also authored =emacsql=, which Wombag uses.
