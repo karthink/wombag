@@ -97,8 +97,8 @@
   :group 'w-db)
 
 (defcustom w-db-file
-  "Sqlite database used to store Wombag data."
   (file-name-concat w-dir "wombag.sqlite")
+  "Sqlite database used to store Wombag data."
   :type 'file
   :group 'w-db)
 
