@@ -134,8 +134,9 @@ Render from positions BEGIN to END."
                                       'face 'w-reading-time-face)
                           (propertize (substring created-at 0 10)
                                       'face 'w-date-face)
+                          ;; No DATA or HELP-ECHO args, the latter is not supported on Emacs 28.2
                           (propertize (button-buttonize
-                                       domain-name (lambda (_) (browse-url url)) nil url)
+                                       domain-name (lambda (_) (browse-url url)))
                                       'face 'w-domain-face)))
           (if-let ((content (car
                              (car-safe
