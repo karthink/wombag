@@ -32,9 +32,11 @@
 (defvar w-search-columns)
 
 (defvar w-db-open-func
-  (or (progn (require 'emacsql-sqlite-builtin nil t)
-             (functionp 'emacsql-sqlite-builtin)
-             #'emacsql-sqlite-builtin)
+  (or (and (fboundp 'sqlite-available-p)
+           (sqlite-available-p)
+           (require 'emacsql-sqlite-builtin nil t)
+           (functionp 'emacsql-sqlite-builtin)
+           #'emacsql-sqlite-builtin)
       (progn (require 'emacsql-sqlite)
              #'emacsql-sqlite))
   ;; :type 'function ;; :group 'w-db
